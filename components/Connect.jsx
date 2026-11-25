@@ -400,6 +400,16 @@ export default function Connect() {
           </p>
         </header>
 
+        {/* The evidence cards are drawn while you scroll; this is the same evidence as plain text */}
+        <dl className="sr-only">
+          {Object.values(EVIDENCE).map((e) => (
+            <div key={e.label}>
+              <dt>{e.label}</dt>
+              <dd>{e.stat ? `${e.stat} ${e.caption}. ` : `${e.caption}. `}{e.fact} “{e.quote}”</dd>
+            </div>
+          ))}
+        </dl>
+
         <div className="board" ref={boardRef} aria-hidden="true" />
 
         {NODES.map((n) => (

@@ -360,6 +360,16 @@ export default function Root() {
         <article className="rcard" ref={cardRef} aria-live="polite" />
         </div>
 
+        {/* The tree is drawn, so screen readers and search engines get the same story as a plain list */}
+        <ol className="sr-only" aria-label="Her journey, from school to today">
+          {TREE.filter((t) => t.title).sort((a, b) => a.year - b.year).map((t) => (
+            <li key={t.id}>
+              <strong>{t.title}</strong>, {t.meta}. {t.story}
+              {t.sparks ? ` Recognition: ${t.sparks.join('; ')}.` : ''}
+            </li>
+          ))}
+        </ol>
+
         <div className="tree-area" ref={areaRef}>
           <div className="tree" ref={treeRef}>
             <svg ref={svgRef} aria-hidden="true">

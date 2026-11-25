@@ -7,17 +7,39 @@ import './globals.css';
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
 
+const title = 'Soniaa S. · Fractional CMO | Look Closer';
+const description =
+  'Soniaa S. is a Fractional CMO and the CMO of i-SmokeStack, with roles across India, Dubai and the US: Bosch, FARO, Creaform, Appirio, RoundGlass and more. An interactive profile that turns marketing chaos into clarity.';
+
 export const metadata = {
   metadataBase: new URL(siteUrl),
-  title: 'Look Closer · Soniaa S.',
-  description:
-    'An interactive profile of Soniaa S., Fractional CMO. “I notice what others don’t.” Look closer, and the chaos makes sense.',
+  title: { default: title, template: '%s | Look Closer' },
+  description,
+  applicationName: 'Look Closer',
+  authors: [{ name: 'Sarvagya Singh' }],
+  creator: 'Sarvagya Singh',
+  keywords: [
+    'Soniaa S.', 'Sonia Specialist', 'Fractional CMO', 'Chief Marketing Officer', 'i-SmokeStack',
+    'B2B marketing', 'demand generation', 'marketing strategy', 'startup growth', 'brand strategy',
+    'marketing operations', 'Marketo Certified Expert', 'IIM Bangalore', 'interactive profile',
+  ],
+  alternates: { canonical: '/' },
+  robots: { index: true, follow: true, googleBot: { index: true, follow: true, 'max-image-preview': 'large' } },
   openGraph: {
-    title: 'Look Closer · Soniaa S.',
-    description: 'Move the lens. Watch the chaos make sense.',
-    type: 'website',
+    type: 'profile',
+    url: '/',
+    siteName: 'Look Closer',
+    locale: 'en_IN',
+    title,
+    description: 'Move the lens. Watch the chaos make sense. An interactive profile of Soniaa S., Fractional CMO.',
+    firstName: 'Soniaa',
   },
-  twitter: { card: 'summary_large_image' },
+  twitter: {
+    card: 'summary_large_image',
+    title,
+    description: 'Move the lens. Watch the chaos make sense. An interactive profile of Soniaa S., Fractional CMO.',
+  },
+  category: 'marketing',
 };
 
 export const viewport = {
