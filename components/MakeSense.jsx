@@ -66,6 +66,8 @@ export default function MakeSense() {
     let lx = null, ly = null, pointer = false, px = 0, py = 0;
     const timers = [];
 
+    const orbsWrap = $.sticky.querySelector('.sorbs');
+    let orbsBottom = null;
     function layout() {
       W = $.sticky.clientWidth; H = $.sticky.clientHeight;
       narrow = W < 760;
@@ -244,7 +246,7 @@ export default function MakeSense() {
       manualArea = null; guessed = null; paintOrbs();
       $.email.value = ''; $.name.value = ''; $.consent.checked = false; $.website.value = '';
       $.sendError.hidden = true;
-      $.sendBtn.disabled = false; $.sendLabel.textContent = 'Send to Sonia';
+      $.sendBtn.disabled = false; $.sendLabel.textContent = 'Send to Soniaa';
       current = null;
       $.input.focus({ preventScroll: true });
     }
@@ -254,9 +256,9 @@ export default function MakeSense() {
     on($.sendBtn, 'click', async () => {
       const email = $.email.value.trim();
       let msg = '';
-      if (!email) msg = 'Add your email so Sonia can reply.';
+      if (!email) msg = 'Add your email so Soniaa can reply.';
       else if (!/^\S+@\S+\.\S+$/.test(email)) msg = 'That email doesn’t look right yet. Check for a typo.';
-      else if (!$.consent.checked) msg = 'Tick the box so Sonia can see what you shared.';
+      else if (!$.consent.checked) msg = 'Tick the box so Soniaa can see what you shared.';
       if (msg) { $.sendError.textContent = msg; $.sendError.hidden = false; return; }
       $.sendError.hidden = true;
       $.sendBtn.disabled = true;
@@ -271,7 +273,7 @@ export default function MakeSense() {
           }),
         });
         const data = await res.json().catch(() => ({}));
-        if (!res.ok || !data.ok) throw new Error(data.error || 'That didn’t reach Sonia. Your card is still here, so try again.');
+        if (!res.ok || !data.ok) throw new Error(data.error || 'That didn’t reach Soniaa. Your card is still here, so try again.');
         reachedOut('send');
         flyToFunnel();
       } catch (err) {
@@ -335,6 +337,17 @@ export default function MakeSense() {
       // The lens follows the cursor, or drifts on its own.
       let tx, ty;
       if (pointer && !coarse) { tx = px; ty = py; }
+      else if (narrow) {
+        // Phones: drift in the open band between the hint and the chips, never over the text.
+        const r0 = $.lens.offsetWidth / 2;
+        const sr = $.sticky.getBoundingClientRect();
+        const hb = $.shint.getBoundingClientRect().bottom - sr.top;
+        const ob = Math.min(...orbEls.map((o) => o.getBoundingClientRect().top)) - sr.top;
+        const mid = (hb + ob) / 2 - r0 * 0.45; // the handle hangs below, so sit a little higher
+        const room = Math.max(0, (ob - hb - r0 * 2.9) / 2 - 6);
+        tx = W * (0.5 + 0.22 * Math.sin(tt * 0.0004));
+        ty = mid + room * Math.sin(tt * 0.0006 + 1);
+      }
       else { tx = W * (0.5 + 0.2 * Math.sin(tt * 0.0004)); ty = H * (0.52 + 0.1 * Math.sin(tt * 0.0006 + 1)); }
       // Keep the whole lens, handle included, inside this scene, so the next section never cuts it off.
       const r = $.lens.offsetWidth / 2, reach = r * 1.9; // the handle sticks out down and to the right
@@ -364,6 +377,12 @@ export default function MakeSense() {
           w.el.style.transform = `translate(${w.x.toFixed(1)}px,${w.y.toFixed(1)}px) translate(-50%, -50%) rotate(${(sharp ? 0 : rot).toFixed(2)}deg)`;
         });
       }
+
+      // On phones the ideas sit in a row just above the input; keep a clear gap even when the hint below it wraps.
+      if (narrow) {
+        const gapBottom = Math.round(H - $.bar.offsetTop + 16);
+        if (gapBottom !== orbsBottom) { orbsBottom = gapBottom; orbsWrap.style.bottom = gapBottom + 'px'; }
+      } else if (orbsBottom !== null) { orbsBottom = null; orbsWrap.style.bottom = ''; }
 
       // The four ideas float at the sides; the matching one is tied to the input with a thread.
       const active = manualArea || guessed;
@@ -445,7 +464,7 @@ export default function MakeSense() {
 
         <span className="smorph" ref={ref('morph')} aria-hidden="true" />
 
-        <article className="scard" ref={ref('card')} aria-live="polite" style={{ visibility: 'hidden' }}>
+        <article className="scard" ref={ref('card')} aria-live="polite" data-lenis-prevent style={{ visibility: 'hidden' }}>
           <div className="cc-top"><span>Clarity card</span><LensIcon /></div>
           <div className="cc-row first">
             <span className="cc-k">Your chaos, made clear</span>
@@ -460,7 +479,7 @@ export default function MakeSense() {
             ))}
           </div>
           <div className="cc-row">
-            <span className="cc-k">Sonia’s principle</span>
+            <span className="cc-k">Soniaa’s principle</span>
             <p className="cc-principle" ref={ref('principle')} />
           </div>
           <div className="cc-row">
@@ -470,7 +489,7 @@ export default function MakeSense() {
             ))}
           </div>
           <div className="ssend">
-            <span className="ssend-title">Send this to Sonia</span>
+            <span className="ssend-title">Send this to Soniaa</span>
             <div className="ssend-row">
               <label className="sr-only" htmlFor="sendEmail">Your email</label>
               <input id="sendEmail" ref={ref('email')} type="email" autoComplete="email" maxLength={120} placeholder="Your email, so she can reply" />
@@ -479,11 +498,11 @@ export default function MakeSense() {
             </div>
             {/* Left empty by people; bots fill it in */}
             <input ref={ref('website')} type="text" name="website" tabIndex={-1} autoComplete="off" aria-hidden="true" className="sr-only" />
-            <label className="consent"><input type="checkbox" ref={ref('consent')} />I agree to share this with Sonia</label>
+            <label className="consent"><input type="checkbox" ref={ref('consent')} />I agree to share this with Soniaa</label>
             <p className="form-error" ref={ref('sendError')} role="alert" hidden />
             <div className="ssend-actions">
               <button type="button" className="btn-primary" ref={ref('sendBtn')}>
-                <span ref={ref('sendLabel')}>Send to Sonia</span>
+                <span ref={ref('sendLabel')}>Send to Soniaa</span>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
               </button>
               <a className="btn-ghost" href={LINKEDIN} target="_blank" rel="noopener" onClick={() => reachedOut('linkedin')}>LinkedIn ↗</a>
@@ -494,7 +513,7 @@ export default function MakeSense() {
 
         <div className="sdone" ref={ref('done')} hidden role="status">
           <span className="sdone-title">Received.</span>
-          <p>Clarity starts with saying it out loud. Sonia will see your card, and you just joined her funnel, below.</p>
+          <p>Clarity starts with saying it out loud. Soniaa will see your card, and you just joined her funnel, below.</p>
           <div className="ssend-actions" style={{ justifyContent: 'center' }}>
             <a className="btn-ghost" href={LINKEDIN} target="_blank" rel="noopener" onClick={() => reachedOut('linkedin')}>Connect on LinkedIn ↗</a>
             <button type="button" className="text-link" ref={ref('again2')}>Write another</button>

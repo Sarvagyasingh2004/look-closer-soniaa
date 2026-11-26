@@ -3,7 +3,7 @@ import { notifyNewCard } from '@/lib/notify';
 
 export const runtime = 'nodejs';
 
-// Saves a visitor's clarity card when they choose to send it to Sonia.
+// Saves a visitor's clarity card when they choose to send it to Soniaa.
 const AREAS = new Set(['brand', 'messaging', 'operations', 'people']);
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -33,7 +33,7 @@ export async function POST(request) {
   if (chaos.length < 12 || chaos.length > 200) return fail(400, 'Your sentence needs to be between 12 and 200 characters.');
   if (!AREAS.has(area)) return fail(400, 'Pick where the problem lives.');
   if (!EMAIL.test(email) || email.length > 120) return fail(400, 'That email doesn’t look right yet.');
-  if (body.consent !== true) return fail(400, 'Tick the box so Sonia can see what you shared.');
+  if (body.consent !== true) return fail(400, 'Tick the box so Soniaa can see what you shared.');
 
   try {
     const db = await getDb();
@@ -53,6 +53,6 @@ export async function POST(request) {
     return Response.json({ ok: true }, { status: 201 });
   } catch (err) {
     console.error('Could not save submission:', err.message);
-    return fail(500, 'That didn’t reach Sonia. Your card is still here, so try again.');
+    return fail(500, 'That didn’t reach Soniaa. Your card is still here, so try again.');
   }
 }

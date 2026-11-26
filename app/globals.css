@@ -316,8 +316,13 @@ body {
   .ryear-row { margin-top: 2px; gap: 10px; }
   .ryear { font-size: 30px; }
   .tree-area { left: 6px; right: 6px; top: 17svh; bottom: 31svh; }
-  .rcard { padding: 16px 18px; gap: 6px; }
-  .rstory { font-size: 14px; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+  .rcard { padding: 14px 16px; gap: 5px; }
+  .rname { font-size: 18px; }
+  .rname.serif { font-size: 24px; }
+  .rmeta { font-size: 11px; }
+  .rstory { font-size: 14px; line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+  .rchips { margin-top: 2px; gap: 5px; }
+  .rchip { font-size: 10px; padding: 4px 9px; gap: 6px; }
   .ms-label { display: none; }
   .ms.current .ms-label { display: flex; opacity: 1; }
   .ms-label b { font-size: 12px; }
@@ -436,8 +441,26 @@ body {
   .sbar-row > svg { display: none; }
   .sbar .btn-primary { min-height: 44px; padding: 0 16px; font-size: 14px; }
   .sbar .btn-primary .long { display: none; }
-  .slens { --r: 56px; }
-  .shint { top: 46%; white-space: normal; width: 80%; }
+  .slens { --r: 46px; }
+  .shint { top: 36%; white-space: normal; width: 80%; }
+  .sorbs { inset: auto 16px auto 16px; }
+  .sbar-meta { padding: 0 12px; font-size: 10px; }
+  /* The clarity card: compact enough that Send and Start over fit on a phone, and it scrolls if it still doesn't */
+  .scard { top: 50%; width: calc(100vw - 24px); max-height: calc(100% - 24px); padding: 18px 16px 16px; gap: 12px; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
+  .cc-row { gap: 6px; padding-top: 12px; }
+  .cc-chaos { font-size: 17px; line-height: 1.4; }
+  .cc-lens { font-size: 17px; gap: 8px; }
+  .cc-principle { font-size: 21px; }
+  .cc-proof { font-size: 14px; line-height: 1.5; }
+  .ssend { gap: 10px; padding-top: 14px; }
+  .ssend-title { font-size: 16px; }
+  .ssend-row { gap: 8px; }
+  .ssend-row input { flex-basis: 100%; min-height: 44px; font-size: 16px; }
+  .consent { min-height: 36px; font-size: 13px; }
+  .ssend-actions { gap: 8px 14px; }
+  .ssend-actions .btn-primary { flex: 1 1 100%; justify-content: center; min-height: 48px; }
+  .ssend-actions .btn-ghost { min-height: 44px; }
+  .sdone p { font-size: 15px; }
 }
 @media (prefers-reduced-motion: reduce) {
   .sbar-row.nudge { animation: none; }
@@ -563,3 +586,19 @@ body {
 @media (min-width: 761px) and (max-height: 700px) {
   .rstory { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
 }
+
+/* Clarity card on shorter laptop screens: tighter, so Send and Start over stay in view */
+@media (min-width: 761px) and (max-height: 860px) {
+  .scard { padding: 22px 26px; gap: 11px; max-height: calc(100% - 28px); }
+  .cc-row { gap: 5px; padding-top: 11px; }
+  .cc-chaos { font-size: 18px; line-height: 1.35; }
+  .cc-lens { font-size: 18px; }
+  .cc-principle { font-size: 24px; }
+  .cc-proof { font-size: 14px; line-height: 1.45; }
+  .ssend { gap: 9px; padding-top: 12px; }
+  .ssend-row input { min-height: 42px; }
+  .consent { min-height: 32px; }
+  .ssend-actions .btn-primary, .ssend-actions .btn-ghost { min-height: 44px; }
+}
+/* A long sentence shouldn't push the actions away: clamp it to four lines inside the card */
+.cc-chaos { max-height: 5.9em; overflow: hidden; }

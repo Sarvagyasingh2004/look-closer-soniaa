@@ -175,6 +175,7 @@ export default function Root() {
         const q = px(it.node[0], it.node[1]);
         it.btn.style.left = q.x.toFixed(1) + 'px';
         it.btn.style.top = q.y.toFixed(1) + 'px';
+        it.btn.dataset.side = it.side;
       });
       const s0 = px(500, 640);
       seedRef.current.style.left = s0.x + 'px'; seedRef.current.style.top = s0.y + 'px';
@@ -193,11 +194,10 @@ export default function Root() {
       el.textContent = s;
       return el;
     };
-    function renderRoot(key) {
-      if (key === rShown) return;
-      rShown = key;
-      rcard.innerHTML = '';
-      const add = (tag, cls, text) => { const el = document.createElement(tag); el.className = cls; el.textContent = text; rcard.appendChild(el); return el; };
+    // Fills a card element with one chapter's content; returns the year and caption for it.
+    function fillCard(target, key) {
+      target.innerHTML = '';
+      const add = (tag, cls, text) => { const el = document.createElement(tag); el.className = cls; el.textContent = text; target.appendChild(el); return el; };
       let year, cap;
       if (key === 'intro') {
         add('span', 'rchap amber', 'Roots · education');
@@ -224,6 +224,33 @@ export default function Root() {
         }
         year = String(it.year); cap = it.title;
       }
+      return [year, cap];
+    }
+
+    // On phones the card sits under the tree. Size it once for its tallest chapter,
+    // and end the tree just above it, so the roots are never hidden and nothing jumps.
+    function fitCardOnPhone() {
+      if (window.innerWidth > 760) { rcard.style.minHeight = ''; treeArea.style.bottom = ''; return; }
+      const probe = rcard.cloneNode(false);
+      probe.removeAttribute('aria-live');
+      Object.assign(probe.style, { position: 'absolute', visibility: 'hidden', left: '0', top: '0', width: rcard.offsetWidth + 'px', minHeight: '0', margin: '0' });
+      rcard.parentNode.appendChild(probe);
+      let maxH = 0;
+      ['intro', 'finale', ...items.filter((x) => x.title).map((x) => x.id)].forEach((k) => {
+        fillCard(probe, k);
+        maxH = Math.max(maxH, probe.offsetHeight);
+      });
+      probe.remove();
+      rcard.style.minHeight = Math.ceil(maxH) + 'px';
+      // Offsets, not screen rects: the card's entrance animation moves it for a moment.
+      const top = rcard.parentNode.offsetTop + rcard.offsetTop;
+      treeArea.style.bottom = Math.max(0, Math.round(stickyRef.current.clientHeight - top + 10)) + 'px';
+    }
+
+    function renderRoot(key) {
+      if (key === rShown) return;
+      rShown = key;
+      const [year, cap] = fillCard(rcard, key);
       rcard.classList.remove('swap'); void rcard.offsetWidth; rcard.classList.add('swap');
       if (year !== rYearShown) {
         rYearShown = year;
@@ -232,8 +259,24 @@ export default function Root() {
       }
       capRef.current.textContent = cap;
       items.forEach((x) => x.btn && x.btn.classList.toggle('current', x.id === key));
+      keepLabelOnScreen();
+    }
+
+    // On phones only the current label shows; if it would run off the edge, put it on the other side.
+    function keepLabelOnScreen() {
+      const it = items.find((x) => x.btn && x.btn.classList.contains('current'));
+      if (!it) return;
+      it.btn.dataset.side = it.side;
+      const lab = it.btn.querySelector('.ms-label');
+      if (!lab) return;
+      const r = lab.getBoundingClientRect();
+      if (r.width && (r.left < 4 || r.right > window.innerWidth - 4)) it.btn.dataset.side = it.side === 'l' ? 'r' : 'l';
     }
     renderRoot('intro');
+    const refit = () => { fitCardOnPhone(); layout(); keepLabelOnScreen(); };
+    refit();
+    window.addEventListener('resize', refit);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(refit);
 
     let rp = 0, id;
     function frame(t) {
@@ -332,6 +375,7 @@ export default function Root() {
       cancelAnimationFrame(id);
       window.removeEventListener('pointermove', onPointer);
       window.removeEventListener('resize', layout);
+      window.removeEventListener('resize', refit);
       msLayer.innerHTML = '';
     };
   }, []);

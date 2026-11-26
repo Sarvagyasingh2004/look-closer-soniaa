@@ -83,7 +83,8 @@ export default function Pulse() {
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const coarse = window.matchMedia('(pointer: coarse)').matches;
 
-    let SW = 1, SH = 1, narrow = false, marqueeW = 0;
+    let SW = 1, SH = 1, narrow = false, marqueeW = 0, headBottom = 0;
+    const headEl = sticky.querySelector('.phead');
     const cam = { c: 0, z: 1, zy: 1, cy: 0, zo: 0 };
     function layout() {
       SW = sticky.clientWidth; SH = sticky.clientHeight;
@@ -93,12 +94,16 @@ export default function Pulse() {
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       ctx.font = `500 ${narrow ? 24 : 44}px ${MONO}`;
       marqueeW = ctx.measureText(MARQUEE).width;
+      const head = sticky.querySelector('.phead');
+      headBottom = head ? head.offsetTop + head.offsetHeight : 0;
     }
     layout();
     window.addEventListener('resize', layout);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(layout);
 
     let gh = [];
-    const gx = (i) => GX[i] * SW;
+    // The gates sit a little in from the edges, so the last stage name and "YOU" stay on screen.
+    const gx = (i) => (narrow ? 0.04 + GX[i] * 0.82 : 0.02 + GX[i] * 0.9) * SW;
     const halfAt = (x) => {
       if (x <= gx(0)) return gh[0];
       for (let i = 0; i < GX.length - 1; i++) {
@@ -147,7 +152,7 @@ export default function Pulse() {
       const dt = Math.min(50, t - (last || t)); last = t;
       const n = shapeRef.current;
       const shownN = shownRef.current;
-      const hmax = SH * (narrow ? 0.13 : 0.16);
+      const hmax = SH * (narrow ? 0.11 : 0.16);
       gh = n.map((v) => Math.max(4, hmax * Math.sqrt(v / n[0])));
       if (recountRef.current !== seenRecount) {
         seenRecount = recountRef.current;
@@ -166,7 +171,10 @@ export default function Pulse() {
       cam.z = mix(ZP, 1, zo);
       cam.c = mix(cPan, SW / 2, zo);
       cam.zy = mix(Math.min(ZP, 1.3), 1, zo);
-      cam.cy = SH * (narrow ? 0.64 : 0.66);
+      // On phones, keep the funnel's stage names clear of the heading and the sample-numbers button.
+      // Measured every frame: the heading grows when the status line under it appears after loading.
+      if (narrow && headEl) headBottom = headEl.offsetTop + headEl.offsetHeight;
+      cam.cy = narrow ? Math.min(SH - hmax - 96, Math.max(SH * 0.64, headBottom + hmax + 58)) : SH * 0.66;
       cam.zo = zo;
       // While the camera pans, the lede steps back so the big labels never run into it.
       sticky.classList.toggle('panning', pp > 0.06 && zo < 0.95);
