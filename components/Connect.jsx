@@ -133,7 +133,10 @@ export default function Connect() {
       const head = dSticky.querySelector('.dhead');
       const headBottom = head ? head.offsetTop + head.offsetHeight : 0;
       const top = Math.max(B.y, headBottom + (narrow ? 34 : 48));
-      const bottom = narrow ? B.y + B.h : H - 40;
+      // The lowest nodes sit at 84% of the board; keep them clear of the hint line at the bottom.
+      const hint = dSticky.querySelector('.dhint');
+      const hintTop = hint ? hint.offsetTop : H - 40;
+      const bottom = narrow ? B.y + B.h : Math.min(H - 40, top + (hintTop - 66 - top) / 0.84);
       B = { x: B.x, y: top, w: B.w, h: Math.max(narrow ? 170 : 260, bottom - top) };
       particles = [];
       const k = narrow ? 0.55 : 1;

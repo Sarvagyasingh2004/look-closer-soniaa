@@ -336,6 +336,10 @@ export default function MakeSense() {
       let tx, ty;
       if (pointer && !coarse) { tx = px; ty = py; }
       else { tx = W * (0.5 + 0.2 * Math.sin(tt * 0.0004)); ty = H * (0.52 + 0.1 * Math.sin(tt * 0.0006 + 1)); }
+      // Keep the whole lens, handle included, inside this scene, so the next section never cuts it off.
+      const r = $.lens.offsetWidth / 2, reach = r * 1.9; // the handle sticks out down and to the right
+      tx = Math.min(Math.max(tx, r + 8), W - r * 2.1 - 8);
+      ty = Math.min(Math.max(ty, r + 8), H - reach - 8);
       if (lx === null) { lx = tx; ly = ty; }
       lx += (tx - lx) * 0.14; ly += (ty - ly) * 0.14;
       if (phase === 'type') {
