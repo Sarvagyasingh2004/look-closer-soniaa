@@ -53,6 +53,14 @@ export default function Page() {
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }} />
+      <div className="rotate-note" role="status">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" aria-hidden="true">
+          <rect x="7" y="2.5" width="10" height="19" rx="2" />
+          <path d="M11 18.5h2" />
+        </svg>
+        <b>Turn your phone upright</b>
+        <span>This story is built for a tall screen</span>
+      </div>
       <SmoothScroll />
       <Tracker />
       <ProgressLine />

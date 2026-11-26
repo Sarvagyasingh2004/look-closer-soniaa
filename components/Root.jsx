@@ -230,7 +230,7 @@ export default function Root() {
     // On phones the card sits under the tree. Size it once for its tallest chapter,
     // and end the tree just above it, so the roots are never hidden and nothing jumps.
     function fitCardOnPhone() {
-      if (window.innerWidth > 760) { rcard.style.minHeight = ''; treeArea.style.bottom = ''; return; }
+      if (window.innerWidth > 760) { rcard.style.minHeight = ''; treeArea.style.bottom = ''; treeArea.style.top = ''; return; }
       const probe = rcard.cloneNode(false);
       probe.removeAttribute('aria-live');
       Object.assign(probe.style, { position: 'absolute', visibility: 'hidden', left: '0', top: '0', width: rcard.offsetWidth + 'px', minHeight: '0', margin: '0' });
@@ -245,6 +245,9 @@ export default function Root() {
       // Offsets, not screen rects: the card's entrance animation moves it for a moment.
       const top = rcard.parentNode.offsetTop + rcard.offsetTop;
       treeArea.style.bottom = Math.max(0, Math.round(stickyRef.current.clientHeight - top + 10)) + 'px';
+      // ...and start it below the heading, however tall the heading is on this screen.
+      const head = rcard.parentNode.querySelector('.rhead');
+      if (head) treeArea.style.top = Math.round(rcard.parentNode.offsetTop + head.offsetTop + head.offsetHeight + 8) + 'px';
     }
 
     function renderRoot(key) {

@@ -1,4 +1,5 @@
 import { getDb } from '@/lib/mongodb';
+import { clientIp, isJson, rateLimit, readJson, sameOrigin } from '@/lib/guard';
 
 export const runtime = 'nodejs';
 
@@ -7,17 +8,14 @@ const TYPES = new Set(['page_view', 'lens_used', 'pair_opened', 'chaos_submitted
 const KEYS = new Set(['brand', 'messaging', 'operations', 'people']);
 
 export async function POST(request) {
-  let body;
-  try {
-    const text = await request.text();
-    if (text.length > 1000) return new Response(null, { status: 413 });
-    body = JSON.parse(text);
-  } catch {
-    return new Response(null, { status: 400 });
-  }
+  if (!sameOrigin(request) || !isJson(request)) return new Response(null, { status: 403 });
+  if (!rateLimit(`event:${clientIp(request)}`, 60, 60 * 1000)) return new Response(null, { status: 429 });
+  const { body, tooLarge } = await readJson(request, 1000);
+  if (tooLarge) return new Response(null, { status: 413 });
+  if (!body) return new Response(null, { status: 400 });
 
-  const { type, session, pair, area } = body || {};
-  if (!TYPES.has(type) || typeof session !== 'string' || session.length < 8 || session.length > 64) {
+  const { type, session, pair, area } = body;
+  if (!TYPES.has(type) || typeof session !== 'string' || !/^[A-Za-z0-9-]{8,64}$/.test(session)) {
     return new Response(null, { status: 400 });
   }
 

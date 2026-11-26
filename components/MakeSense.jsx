@@ -254,10 +254,11 @@ export default function MakeSense() {
     on($.again2, 'click', reset);
 
     on($.sendBtn, 'click', async () => {
-      const email = $.email.value.trim();
+      const email = $.email.value.trim().toLowerCase();
       let msg = '';
       if (!email) msg = 'Add your email so Soniaa can reply.';
-      else if (!/^\S+@\S+\.\S+$/.test(email)) msg = 'That email doesn’t look right yet. Check for a typo.';
+      // Same rule as the server, so the visitor sees the problem before sending.
+      else if (!/^[a-z0-9._%+-]{1,64}@[a-z0-9-]+(\.[a-z0-9-]+)*\.[a-z]{2,}$/.test(email)) msg = 'That email doesn’t look right yet. Check for a typo.';
       else if (!$.consent.checked) msg = 'Tick the box so Soniaa can see what you shared.';
       if (msg) { $.sendError.textContent = msg; $.sendError.hidden = false; return; }
       $.sendError.hidden = true;
